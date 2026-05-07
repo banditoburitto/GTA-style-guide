@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>GTA Style — Гайд по промптам</title>
+<script src="https://cdn.jsdelivr.net/npm/gdev-html-report@2.1.0/gdev-html-report.js"></script>
+</head>
+<body>
+<script>
+GDEV.init({ skill: 'style-guide', theme: 'dark' });
+var G = GDEV.html;
+var c = '';
+
+c += G.eyebrow('Illustration Guide');
+c += G.reportHeader({
+  label: 'AI Art',
+  title: 'GTA SAN ANDREAS STYLE',
+  subtitle: 'Полный гайд по созданию серийных иллюстраций в стиле Rockstar Games'
+});
+
+c += G.toc([
+  'Стилистический ДНК',
+  'Три слоя промпта',
+  'Правила серийности',
+  'Цветовая палитра',
+  'Примеры промптов',
+  'Image-to-Image',
+  'Негативный промпт'
+]);
+
+// SECTION 1
+c += G.section({
+  label: '01',
+  title: 'Стилистический ДНК',
+  desc: 'Визуальный язык стиля — неизменные параметры для всей серии',
+  content: G.grid2(
+    G.stack([
+      G.field('Линия', 'Жёсткий чёрный контур 2–3px. Без антиалиасинга. Формы упрощены до читаемых силуэтов', 'accent'),
+      G.field('Цвет', '3–5 цветов на персонажа. Плоская заливка без градиентов. Тени — отдельный плоский тон', 'neutral'),
+      G.field('Свет', 'Один источник, сверху-слева. Жёсткая граница тени. Cel shading', 'neutral'),
+    ]),
+    G.stack([
+      G.field('Пропорции', 'Утрированные: широкие плечи, тяжёлая нижняя челюсть, прищуренные глаза. 6–7 голов', 'neutral'),
+      G.field('Фон', 'Монохромный или с минимальной температурой. Значительно менее детализирован чем персонаж', 'neutral'),
+      G.field('Техника', '2D vector, comic book, flat shading, crisp edges, no blur, no glow', 'accent'),
+    ])
+  )
+});
+
+c += G.divider();
+
+// SECTION 2
+c += G.section({
+  label: '02',
+  title: 'Три слоя промпта',
+  desc: 'Архитектура промпта — два замороженных слоя и один изменяемый',
+  content: G.stack([
+    G.callout('neutral', 'СЛОЙ 1 — СТИЛЬ (не менять никогда)',
+      'GTA San Andreas art style, Rockstar Games 2D illustration, bold black outlines 2-3px, flat cel shading, no gradients, no blur, no glow, crisp hard edges, limited color palette 4-5 colors, single light source upper-left, strong figure-ground contrast, comic book urban aesthetic, vector-clean rendering'
+    ),
+    G.callout('accent', 'СЛОЙ 2 — СЕРИЯ (менять раз на проект)',
+      'series: [НАЗВАНИЕ СЕРИИ], accent color: [ОДИН АКЦЕНТНЫЙ ЦВЕТ], muted desaturated urban background, aspect ratio [3:4 / 16:9]'
+    ),
+    G.callout('success', 'СЛОЙ 3 — ПЕРСОНАЖ (менять каждый раз)',
+      '[ТИП ПЕРСОНАЖА], [ВНЕШНОСТЬ], wearing [ОДЕЖДА], [ПОЗА / ДЕЙСТВИЕ], expression: [ЭМОЦИЯ]'
+    ),
+    G.callout('warning', 'НЕГАТИВ (не менять никогда)',
+      'negative: realistic, photorealistic, 3D, gradients, soft shadows, anime, pastel, watercolor, blur, glow'
+    )
+  ])
+});
+
+c += G.divider();
+
+// SECTION 3
+c += G.section({
+  label: '03',
+  title: 'Правила серийности',
+  desc: 'Как получать консистентные изображения в одном стиле',
+  content: G.stack([
+    G.metricsGrid([
+      { label: '--seed', value: 'ЧИСЛО', status: 'accent', sub: 'Одинаковый seed = единый ДНК серии. Запиши от первого удачного изображения' },
+      { label: '--sref', value: 'URL', status: 'good', sub: 'Ссылка на эталонное изображение. Все следующие тянутся к нему визуально' },
+      { label: '--cref', value: 'URL', status: 'good', sub: 'Character reference — один персонаж в разных позах' },
+      { label: '--s', value: '80', status: 'accent', sub: 'Stylize 50–200. Рекомендуется 80 — баланс точности и качества' },
+    ]),
+    G.timeline([
+      { date: 'Шаг 1', title: 'Создай эталон', desc: 'Генерируй варианты пока не получишь нужный результат. Это эталон серии.' },
+      { date: 'Шаг 2', title: 'Запиши seed и URL', desc: 'Из эталона берёшь seed (число в футере изображения MJ) и прямую ссылку на изображение.' },
+      { date: 'Шаг 3', title: 'Применяй к каждому персонажу', desc: 'Все новые промпты добавляй --seed ЧИСЛО --sref URL. Меняй только Слой 3.' },
+      { date: 'Шаг 4', title: 'img2img для рефренсов', desc: 'Для стилизации готовых изображений — загрузи как ссылку в начало промпта + --iw 1.5', future: false },
+    ])
+  ])
+});
+
+c += G.divider();
+
+// SECTION 4
+c += G.section({
+  label: '04',
+  title: 'Цветовая палитра',
+  desc: 'Базовые цвета стиля — ограниченная гамма без насыщенных оттенков',
+  content: G.stack([
+    G.table({
+      cols: ['Роль', 'Цвет', 'Hex', 'Применение'],
+      rows: [
+        ['Кожа', { text: '■ Тёплый беж', cls: 'cell-accent' }, '#C8A97A', 'Основной тон кожи'],
+        ['Тень кожи', '■ Коричневый', '#8B6340', 'Тень под скулами, шеей, руками'],
+        ['Контур', { text: '■ Почти чёрный', cls: 'cell-warning' }, '#2A2A2A', 'Все линии и обводки'],
+        ['Одежда', '■ Тёмно-серый', '#4A5568', 'Базовый цвет одежды'],
+        ['Акцент 1', { text: '■ Золотой', cls: 'cell-good' }, '#D4A017', 'Детали, украшения, пряжки'],
+        ['Акцент 2', { text: '■ Тёмно-красный', cls: 'cell-critical' }, '#8B1A1A', 'Второй акцент'],
+        ['Фон', '■ Светло-бежевый', '#E8E0CC', 'Нейтральный фон персонажа'],
+        ['Среда', '■ Приглушённый зелёный', '#6B8F6B', 'Стены, асфальт, среда'],
+      ]
+    }, { variant: 'striped' })
+  ])
+});
+
+c += G.divider();
+
+// SECTION 5
+c += G.section({
+  label: '05',
+  title: 'Примеры промптов',
+  desc: 'Готовые промпты для разных типов персонажей и сцен',
+  content: G.tabs([
+    {
+      label: 'Тюремная сцена',
+      content: G.stack([
+        G.callout('neutral', 'СЛОЙ 1 — стиль (стандартный)', 'GTA San Andreas art style, Rockstar Games 2D illustration, bold black outlines 2-3px, flat cel shading, no gradients, no blur, crisp hard edges, limited palette 4-5 colors, single light source upper-left, comic book urban aesthetic'),
+        G.callout('accent', 'СЛОЙ 2 — серия', 'series: prison_yard, accent color: muted olive green, peeling light-blue concrete wall background, aspect ratio 16:9'),
+        G.callout('success', 'СЛОЙ 3 — персонаж', 'prison yard checkers gambling scene, group of slavic male inmates, muscular builds, tattoos on forearms, weathered skin, wearing dark prison uniforms and shirtless blue tank tops, leaning over worn green table hands reaching for game pieces, orthodox priest in black cassock watching behind, expression: grim silent tension intense focus'),
+        G.callout('warning', 'Негатив', '--no realistic photorealistic 3D gradients soft-shadows anime pastel watercolor blur glow'),
+        G.field('Финальная строка Midjourney', '[промпт выше] --ar 16:9 --s 80 --seed 4471 --sref [URL эталона]', 'accent')
+      ])
+    },
+    {
+      label: 'Уличный наблюдатель',
+      content: G.stack([
+        G.callout('neutral', 'СЛОЙ 1 — стиль (стандартный)', 'GTA San Andreas art style, Rockstar Games 2D illustration, bold black outlines 2-3px, flat cel shading, no gradients, no blur, crisp hard edges, limited palette 4-5 colors, single light source upper-left, comic book urban aesthetic'),
+        G.callout('accent', 'СЛОЙ 2 — серия', 'series: street_crew, accent color: deep red, muted concrete background, aspect ratio 3:4'),
+        G.callout('success', 'СЛОЙ 3 — персонаж', 'lean street lookout, short hair, scar on cheek, wearing open dark jacket, white undershirt, cargo pants, leaning against wall, one hand in pocket, expression: suspicious sideways glance'),
+        G.callout('warning', 'Негатив', '--no realistic photorealistic 3D gradients soft-shadows anime pastel watercolor blur glow'),
+        G.field('Финальная строка Midjourney', '[промпт выше] --ar 3:4 --s 80 --seed 4471 --sref [URL эталона]', 'accent')
+      ])
+    },
+    {
+      label: 'Криминальный босс',
+      content: G.stack([
+        G.callout('neutral', 'СЛОЙ 1 — стиль (стандартный)', 'GTA San Andreas art style, Rockstar Games 2D illustration, bold black outlines 2-3px, flat cel shading, no gradients, no blur, crisp hard edges, limited palette 4-5 colors, single light source upper-left, comic book urban aesthetic'),
+        G.callout('accent', 'СЛОЙ 2 — серия', 'series: street_crew, accent color: deep red, muted concrete background, aspect ratio 3:4'),
+        G.callout('success', 'СЛОЙ 3 — персонаж', 'heavyset crime boss, bald, square jaw, gold ring on finger, wearing dark suit white shirt loose tie, cracking knuckles slight forward lean, expression: menacing half-smile'),
+        G.callout('warning', 'Негатив', '--no realistic photorealistic 3D gradients soft-shadows anime pastel watercolor blur glow'),
+        G.field('Финальная строка Midjourney', '[промпт выше] --ar 3:4 --s 80 --seed 4471 --sref [URL эталона]', 'accent')
+      ])
+    },
+    {
+      label: 'Детектив',
+      content: G.stack([
+        G.callout('neutral', 'СЛОЙ 1 — стиль (стандартный)', 'GTA San Andreas art style, Rockstar Games 2D illustration, bold black outlines 2-3px, flat cel shading, no gradients, no blur, crisp hard edges, limited palette 4-5 colors, single light source upper-left, comic book urban aesthetic'),
+        G.callout('accent', 'СЛОЙ 2 — серия', 'series: detectives, accent color: cold blue, muted interior background, aspect ratio 3:4'),
+        G.callout('success', 'СЛОЙ 3 — персонаж', 'sharp-faced detective, slicked back dark hair, wearing dark maroon suit blue vest striped tie, hands clasped at chest, standing in dimly lit bar interior, expression: cold calculating stare'),
+        G.callout('warning', 'Негатив', '--no realistic photorealistic 3D gradients soft-shadows anime pastel watercolor blur glow'),
+        G.field('Финальная строка Midjourney', '[промпт выше] --ar 3:4 --s 80 --seed 4471 --sref [URL эталона]', 'accent')
+      ])
+    }
+  ])
+});
+
+c += G.divider();
+
+// SECTION 6
+c += G.section({
+  label: '06',
+  title: 'Image-to-Image',
+  desc: 'Как применить стиль к готовому изображению не меняя композицию',
+  content: G.stack([
+    G.block({
+      title: 'Midjourney — самый простой способ',
+      open: true,
+      content: G.stack([
+        G.list([
+          { title: 'Загрузи изображение в Discord', desc: 'Скопируй прямую ссылку на загруженное изображение (правая кнопка → Copy Link)' },
+          { title: 'Вставь ссылку в начало промпта', desc: '[URL изображения] + стандартный стиль-слой + описание сцены' },
+          { title: 'Добавь параметр --iw', desc: '--iw 1.5 — сила влияния оригинала от 0 до 2. Для сохранения композиции: 1.5–2.0' },
+        ], 'ol'),
+        G.callout('accent', 'Пример строки', '[URL] GTA San Andreas art style, Rockstar Games 2D illustration, bold black outlines 2-3px, flat cel shading, no gradients, crisp hard edges, limited palette 4-5 colors, single light source upper-left, comic book urban aesthetic, prison yard scene, slavic male inmates --iw 1.5 --ar 16:9 --no realistic gradients blur'),
+      ])
+    }),
+    G.block({
+      title: 'DALL-E 3 / ChatGPT',
+      open: false,
+      content: G.stack([
+        G.callout('neutral', 'Способ', 'Загружаешь изображение прямо в чат ChatGPT и пишешь запрос текстом'),
+        G.callout('success', 'Текст запроса', 'Перерисуй это изображение в стиле GTA San Andreas — 2D иллюстрация, жёсткие чёрные контуры, плоская заливка без градиентов, ограниченная палитра 4-5 цветов, cel shading, комикс-стиль Rockstar Games. Сохрани ту же композицию и всех персонажей.')
+      ])
+    }),
+    G.block({
+      title: 'Stable Diffusion — максимальный контроль',
+      open: false,
+      content: G.stack([
+        G.callout('neutral', 'Режим', 'img2img — загружаешь оригинал, добавляешь стиль-промпт'),
+        G.table({
+          cols: ['Параметр denoising strength', 'Результат'],
+          rows: [
+            ['0.4 – 0.5', 'Сохраняет композицию точно, меняет стиль мягко'],
+            [{ text: '0.6 – 0.7', cls: 'cell-accent' }, 'Баланс — рекомендуемое значение'],
+            [{ text: '0.8+', cls: 'cell-warning' }, 'Почти полная перегенерация, теряет оригинал'],
+          ]
+        }, { variant: 'bordered' })
+      ])
+    })
+  ])
+});
+
+c += G.divider();
+
+// SECTION 7
+c += G.section({
+  label: '07',
+  title: 'Негативный промпт',
+  desc: 'Что запрещать — полный список для поддержания стиля',
+  content: G.stack([
+    G.metricsGrid([
+      { label: 'Реализм', value: 'ЗАПРЕТ', status: 'critical', sub: 'realistic, photorealistic, photography, hyperrealistic' },
+      { label: '3D рендер', value: 'ЗАПРЕТ', status: 'critical', sub: '3D, CGI, render, octane, unreal engine' },
+      { label: 'Размытие', value: 'ЗАПРЕТ', status: 'critical', sub: 'blur, soft focus, depth of field, bokeh' },
+      { label: 'Эффекты', value: 'ЗАПРЕТ', status: 'critical', sub: 'glow, neon, gradients, bloom, lens flare' },
+      { label: 'Аниме', value: 'ЗАПРЕТ', status: 'warning', sub: 'anime, manga, chibi, kawaii' },
+      { label: 'Мягкие цвета', value: 'ЗАПРЕТ', status: 'warning', sub: 'pastel, watercolor, soft shadows, painterly' },
+    ]),
+    G.callout('neutral', 'Готовая строка для вставки',
+      '--no realistic photorealistic 3D gradients soft-shadows anime pastel watercolor blur glow CGI render octane depth-of-field bokeh neon lens-flare'
+    )
+  ])
+});
+
+c += G.divider();
+
+// QUICK REFERENCE
+c += G.section({
+  label: '★',
+  title: 'Быстрая шпаргалка',
+  desc: 'Всё самое важное в одном месте',
+  content: G.stack([
+    G.grid3(
+      G.stack([
+        G.callout('accent', 'Слой 1 — всегда одинаковый', 'GTA San Andreas art style, Rockstar Games 2D illustration, bold black outlines 2-3px, flat cel shading, no gradients, no blur, no glow, crisp hard edges, limited color palette 4-5 colors, single light source upper-left, strong figure-ground contrast, comic book urban aesthetic, vector-clean rendering')
+      ]),
+      G.stack([
+        G.callout('success', 'Слой 2 — раз на серию', 'series: [ИМЯ], accent color: [ЦВЕТ], muted desaturated urban background, aspect ratio [ФОРМАТ]')
+      ]),
+      G.stack([
+        G.callout('warning', 'Слой 3 — каждый раз', '[ТИП ПЕРСОНАЖА], [ВНЕШНОСТЬ], wearing [ОДЕЖДА], [ПОЗА], expression: [ЭМОЦИЯ]')
+      ])
+    ),
+    G.field('Ключевые параметры Midjourney', '--ar 3:4 или 16:9  |  --s 80  |  --seed ЧИСЛО  |  --sref URL эталона  |  --iw 1.5 (для img2img)', 'accent'),
+    G.callout('critical', 'Главное правило', 'Слой 1 и Негатив — не трогать НИКОГДА. Слой 2 — один раз на проект. Слой 3 — единственное что меняется.')
+  ])
+});
+
+c += G.footer({ text: 'GTA Style Illustration Guide', date: '2026' });
+
+document.body.insertAdjacentHTML('beforeend', G.container(c));
+</script>
+</body>
+</html>
